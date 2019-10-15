@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/facucachomeli/workshop-go-testing/domain"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestShipment_NewShipment_Error(t *testing.T) {
@@ -51,21 +52,12 @@ func TestShipment_NewShipment_OK(t *testing.T) {
 	destination := "valid destination"
 
 	s, err := domain.NewShipment(id, origin, destination)
-	if err != nil {
-		t.Fatalf("expected error to be nil but got '%s'", err)
-	}
-	if id != s.ID {
-		t.Errorf("expected ID to be '%v' but got '%v'", id, s.ID)
-	}
-	if origin != s.Origin {
-		t.Errorf("expected Origin to be '%s' but got '%s'", origin, s.Origin)
-	}
-	if destination != s.Destination {
-		t.Errorf("expected Destination to be '%s' but got '%s'", destination, s.Destination)
-	}
-	if s.State != "" {
-		t.Errorf("expected shipment state to empty but got %s", s.State)
-	}
+
+	assert.Nilf(t, err, "expected error to be nil but got '%s'", err)
+	assert.Equal(t, id, s.ID, "expected ID to be '%v' but got '%v'", id, s.ID)
+	assert.Equal(t, origin, s.Origin, "expected Origin to be '%s' but got '%s'", origin, s.Origin)
+	assert.Equal(t, destination, s.Destination, "expected Destination to be '%s' but got '%s'", destination, s.Destination)
+	assert.Zero(t, s.State, "expected shipment state to empty but got %s", s.State)
 }
 
 func TestShipment_Create_Error(t *testing.T) {
@@ -98,14 +90,9 @@ func TestShipment_Create_Error(t *testing.T) {
 		}
 		t.Run(c.name, func(t *testing.T) {
 			err := s.Create()
-			if err == nil {
-				t.Errorf("expected error but found none")
-			} else if c.expectedError != err {
-				t.Errorf("expected '%s' error but got '%s'", c.expectedError, err)
-			}
-			if s.State != c.state {
-				t.Errorf("expected shipment state to be '%s' but got %s", c.state, s.State)
-			}
+			assert.Equal(t, c.state, s.State)
+			assert.NotNilf(t, err, "expected error but found none")
+			assert.Equal(t, c.expectedError, err)
 		})
 	}
 }
@@ -116,12 +103,8 @@ func TestShipment_Create_OK(t *testing.T) {
 	}
 	err := s.Create()
 
-	if err != nil {
-		t.Fatalf("expected error to be nil but got '%s'", err)
-	}
-	if s.State != domain.Created {
-		t.Errorf("expected shipment state to be '%s' but got '%s'", domain.Created, s.State)
-	}
+	assert.Nilf(t, err, "expected error to be nil but got '%s'", err)
+	assert.Equal(t, domain.Created, s.State)
 }
 
 func TestShipment_Deliver_Error(t *testing.T) {
@@ -154,16 +137,14 @@ func TestShipment_Deliver_Error(t *testing.T) {
 		}
 		t.Run(c.name, func(t *testing.T) {
 			err := s.Deliver()
+			assert.Equal(t, c.state, s.State)
+			assert.Nilf(t, err)
 			if err == nil {
 				t.Errorf("expected error but found none")
 			} else if c.expectedError != err {
 				t.Errorf("expected '%s' error but got '%s'", c.expectedError, err)
 			}
-			if s.State != c.state {
-				t.Errorf("expected shipment state to be '%s' but got %s", c.state, s.State)
-			}
 		})
-	}
 }
 
 func TestShipment_Deliver_OK(t *testing.T) {
