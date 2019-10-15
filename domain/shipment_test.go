@@ -138,13 +138,10 @@ func TestShipment_Deliver_Error(t *testing.T) {
 		t.Run(c.name, func(t *testing.T) {
 			err := s.Deliver()
 			assert.Equal(t, c.state, s.State)
-			assert.Nilf(t, err)
-			if err == nil {
-				t.Errorf("expected error but found none")
-			} else if c.expectedError != err {
-				t.Errorf("expected '%s' error but got '%s'", c.expectedError, err)
-			}
+			assert.NotNilf(t, err, "expected error but found none")
+			assert.Equal(t, c.expectedError, err)
 		})
+	}
 }
 
 func TestShipment_Deliver_OK(t *testing.T) {
@@ -152,11 +149,6 @@ func TestShipment_Deliver_OK(t *testing.T) {
 		State: domain.Shipped,
 	}
 	err := s.Deliver()
-
-	if err != nil {
-		t.Fatalf("expected error to be nil but got '%s'", err)
-	}
-	if s.State != domain.Delivered {
-		t.Errorf("expected shipment state to be '%s' but got '%s'", domain.Delivered, s.State)
-	}
+	assert.Nilf(t, err, "expected error to be nil but got '%s'", err)
+	assert.Equal(t, domain.Delivered, s.State)
 }
